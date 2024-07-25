@@ -120,6 +120,7 @@ namespace RiotTesting.Pages
 
         private void DeserializeSummonerFriends(string summoner_friends)
         {
+            friendsList.Clear();
             var list = JsonConvert.DeserializeObject<List<SummonerFriend>>(summoner_friends);
 
             foreach (SummonerFriend friend in list)

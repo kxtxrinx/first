@@ -62,7 +62,7 @@
                                 <Style TargetType="Image">
                                     <Setter Property="Opacity" Value="1"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding availability}" Value="offline">
+                                        <DataTrigger Binding="{Binding availability}" Value="mobile">
                                             <Setter Property="Opacity" Value="0.5"/>
                                         </DataTrigger>
                                     </Style.Triggers>
