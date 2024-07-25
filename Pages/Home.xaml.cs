@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,6 +28,15 @@ namespace RiotTesting.Pages
         public string summonerLevel { get; set; }
         public string tagLine { get; set; }
     }
+
+    public class SummonerFriend
+    {
+        public string gameName { get; set; }
+        public string icon { get; set; }
+        //TODO: Añadir más campos
+        //public string summonerLevel { get; set; }
+        //public string tagLine { get; set; }
+    }
     /// <summary>
     /// Lógica de interacción para Home.xaml
     /// </summary>
@@ -38,31 +48,62 @@ namespace RiotTesting.Pages
         public Home()
         {
             InitializeComponent();
+            SetOptionsTextToWhite();
 
 
         }
 
 
-
-        async public void getData()
+        async public void GetData()
         {
-            var data = await leagueClient.Request(requestMethod.GET, "/lol-summoner/v1/current-summoner");
-            deserealize_summoner_info(data);
+            try
+            {
+                var data = await leagueClient.Request(requestMethod.GET, "/lol-summoner/v1/current-summoner");
+                deserealize_summoner_info(data);
+            }
+            catch (System.InvalidOperationException)
+            {
+                tbSummName.Text = "Error al cargar los datos.\n¿Está el cliente corriendo con una sesión iniciada?";
+            }
         }
 
         private void ReloadData(object sender, RoutedEventArgs e)
         {
-            getData();
-            
+            GetData();
+            GetFriendList();
         }
 
+        private void SetOptionsTextToWhite()
+        {
+
+            foreach (var component in panelOptions.Children)
+            {
+                if (component is System.Windows.Controls.Label)
+                {
+                    System.Windows.Controls.Label label = (System.Windows.Controls.Label)component;
+                    label.Foreground = Brushes.White;
+                }
+
+            }
+        }
+
+
+        private async void GetFriendList()
+        {
+            var data = await leagueClient.Request(requestMethod.GET, "/lol-chat/v1/friends");
+            lblFriendUser.Text = data;
+        }
 
         private void deserealize_summoner_info(string summoner_info)
         {
             Summoner current_summoner = JsonConvert.DeserializeObject<Summoner>(summoner_info);
             //Llamamos a esta URL para obtener el icono del summoner, sacándolo del ID del JSON
-            imgIcon.Source = new BitmapImage(new Uri("https://ddragon.leagueoflegends.com/cdn/11.15.1/img/profileicon/" + current_summoner.profileIconId + ".png"));
-            lblSummName.Content = current_summoner.displayName + " #" + current_summoner.tagLine;
+            imgIcon.ImageSource = new BitmapImage(new Uri("https://ddragon.leagueoflegends.com/cdn/11.15.1/img/profileicon/" + current_summoner.profileIconId + ".png"));
+            tbSummName.Text = current_summoner.gameName + " #" + current_summoner.tagLine;
+            System.Windows.Controls.Label lab = new System.Windows.Controls.Label();
+            lab.Foreground = Brushes.White;
+
+
         }
     }
 }
