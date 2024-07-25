@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Runtime.Remoting.Messaging;
@@ -10,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -33,10 +35,21 @@ namespace RiotTesting.Pages
     {
         public string gameName { get; set; }
         public string icon { get; set; }
+        public string availability { get; set; }
         //TODO: Añadir más campos
         //public string summonerLevel { get; set; }
         //public string tagLine { get; set; }
     }
+
+    public class SummonerFriendWIcon
+    {
+        public string gameName { get; set; }
+        public string icon { get; set; }
+        public string availability { get; set; }
+        public BitmapImage iconImage { get; set; }
+
+    }
+
     /// <summary>
     /// Lógica de interacción para Home.xaml
     /// </summary>
@@ -44,13 +57,21 @@ namespace RiotTesting.Pages
     {
 
         LeagueClient leagueClient = new LeagueClient(credentials.cmd);
+        public ObservableCollection<SummonerFriendWIcon> friendsList = new ObservableCollection<SummonerFriendWIcon>();
+
+
 
         public Home()
         {
             InitializeComponent();
+            this.DataContext = this;
+
             SetOptionsTextToWhite();
+        }
 
-
+        public ObservableCollection<SummonerFriendWIcon> FriendsList
+        {
+            get { return friendsList; }
         }
 
 
@@ -59,7 +80,7 @@ namespace RiotTesting.Pages
             try
             {
                 var data = await leagueClient.Request(requestMethod.GET, "/lol-summoner/v1/current-summoner");
-                deserealize_summoner_info(data);
+                DeserializeSummonerInfo(data);
             }
             catch (System.InvalidOperationException)
             {
@@ -71,6 +92,7 @@ namespace RiotTesting.Pages
         {
             GetData();
             GetFriendList();
+            
         }
 
         private void SetOptionsTextToWhite()
@@ -91,10 +113,29 @@ namespace RiotTesting.Pages
         private async void GetFriendList()
         {
             var data = await leagueClient.Request(requestMethod.GET, "/lol-chat/v1/friends");
-            lblFriendUser.Text = data;
+
+            DeserializeSummonerFriends(data);
         }
 
-        private void deserealize_summoner_info(string summoner_info)
+        private void DeserializeSummonerFriends(string summoner_friends)
+        {
+            var list = JsonConvert.DeserializeObject<List<SummonerFriend>>(summoner_friends);
+
+            foreach (SummonerFriend friend in list)
+            {
+                SummonerFriendWIcon friendWIcon = new SummonerFriendWIcon();
+                friendWIcon.gameName = friend.gameName;
+                friendWIcon.icon = friend.icon;
+                friendWIcon.availability = friend.availability;
+                friendWIcon.iconImage = new BitmapImage(new Uri("https://ddragon.leagueoflegends.com/cdn/14.14.1/img/profileicon/" + friend.icon + ".png"));
+
+                friendsList.Add(friendWIcon);
+            }
+
+
+        }
+
+        private void DeserializeSummonerInfo(string summoner_info)
         {
             Summoner current_summoner = JsonConvert.DeserializeObject<Summoner>(summoner_info);
             //Llamamos a esta URL para obtener el icono del summoner, sacándolo del ID del JSON
