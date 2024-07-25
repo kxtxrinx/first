@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Runtime.Remoting.Messaging;
@@ -132,6 +133,12 @@ namespace RiotTesting.Pages
                 friendsList.Add(friendWIcon);
             }
 
+            //Ordenar lista por availability
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(lvFriendsList.ItemsSource);
+            view.SortDescriptions.Add(new SortDescription("availability", ListSortDirection.Ascending));
+
+
+
 
         }
 
@@ -139,7 +146,7 @@ namespace RiotTesting.Pages
         {
             Summoner current_summoner = JsonConvert.DeserializeObject<Summoner>(summoner_info);
             //Llamamos a esta URL para obtener el icono del summoner, sacándolo del ID del JSON
-            imgIcon.ImageSource = new BitmapImage(new Uri("https://ddragon.leagueoflegends.com/cdn/11.15.1/img/profileicon/" + current_summoner.profileIconId + ".png"));
+            imgIcon.ImageSource = new BitmapImage(new Uri("https://ddragon.leagueoflegends.com/cdn/14.14.1/img/profileicon/" + current_summoner.profileIconId + ".png"));
             tbSummName.Text = current_summoner.gameName + " #" + current_summoner.tagLine;
             System.Windows.Controls.Label lab = new System.Windows.Controls.Label();
             lab.Foreground = Brushes.White;

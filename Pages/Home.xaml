@@ -31,7 +31,7 @@
             </UniformGrid>
 
 
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10, 20"  Grid.Column="1" HorizontalAlignment="Center" Grid.Row="0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10, 20"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0">
             <Ellipse Height="50" Width="50">
                 <Ellipse.Fill>
                     <ImageBrush x:Name="imgIcon" Stretch="UniformToFill"/>
@@ -50,14 +50,39 @@
             
 
         </StackPanel>
+        
         <ListView BorderThickness="0" Grid.Column="1" Name="lvFriendsList" Grid.Row="1" ItemsSource="{Binding FriendsList}" Grid.RowSpan="2" Background="#040c1c" >
 
             <ListView.ItemTemplate>
                 <DataTemplate>
+                    
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                        <Image Source="{Binding iconImage}" HorizontalAlignment="Stretch" VerticalAlignment="Top" MaxHeight="40" MaxWidth="40" Stretch="UniformToFill" />
-                        <TextBlock Foreground="White" Text="{Binding gameName}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10" />
+                        <Image Source="{Binding iconImage}" HorizontalAlignment="Stretch" VerticalAlignment="Top" MaxHeight="40" MaxWidth="40" Stretch="UniformToFill">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding availability}" Value="offline">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                
+                        </Image>
 
+                        <TextBlock Name="tbFriendName" Text="{Binding gameName}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding availability}" Value="offline">
+                                            <Setter Property="Foreground" Value="Gray" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
